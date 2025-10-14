@@ -12,7 +12,7 @@ def make_docx(responses, title="Therapy Feedback Summary"):
     doc = Document()
     doc.add_heading(title, level=1)
     doc.add_paragraph(f"Generated: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%SZ')} (UTC)\n")
-    
+
     doc.add_paragraph("Summary for Therapists:", style="Intense Quote")
     doc.add_paragraph(
         "This document compiles client feedback. Likert values (1–5) reflect selected ratings. "
@@ -31,10 +31,8 @@ def make_docx(responses, title="Therapy Feedback Summary"):
             p.add_run(f"{q}: ").bold = True
             p.add_run(str(a))
         doc.add_paragraph()
-    
-    doc.add_paragraph(
-        "Note: Only answered questions and selected sections are included."
-    )
+
+    doc.add_paragraph("Note: Only answered questions and selected sections are included.")
     f = BytesIO()
     doc.save(f)
     f.seek(0)
@@ -57,11 +55,12 @@ if "responses" not in st.session_state:
 responses = st.session_state["responses"]
 
 # -------------------------------
-# Gentle intro
+# Introduction
 # -------------------------------
 st.title("Therapy Feedback Form")
 st.markdown(
-    "This form is designed to help you reflect on your therapy experiences and think about feedback you might want to share with your therapist. All questions are optional, and at the end you can choose to download a summary of your responses to some or all of the form sections, which you are welcome to share with your therapist or others. If you have any questions or feedback, please don't hesitate to contact us at sambrandsen7@gmail.com."
+    "This form is designed to help you reflect on your therapy experiences and think about feedback you might want to share with your therapist. "
+    "All questions are optional, and at the end you can choose to download a summary of your responses to some or all of the form sections."
 )
 st.markdown("---")
 
@@ -76,18 +75,16 @@ focus = st.radio(
     key="entry_focus"
 )
 
-# ✅ Clean, functional style toggle
 style = st.radio(
     "Preferred style of questions/prompts:",
     options=["Structured", "Unstructured"],
-    format_func=lambda s: "Longer sections with a mix of open-ended and multiple choice questions"
-        if s == "Structured" else "Shorter sections with mostly open-ended prompts",
+    format_func=lambda s: "Includes Likert scales and structured prompts"
+        if s == "Structured" else "Focuses on open-ended reflection",
     key="entry_style"
 )
 
 st.markdown("---")
 
-# Determine super optional sections
 super_optional = focus == "Concerns, Discomfort, or Harm"
 
 # -------------------------------
@@ -95,16 +92,17 @@ super_optional = focus == "Concerns, Discomfort, or Harm"
 # -------------------------------
 st.header("Section 1 — Overall Experience")
 st.subheader("General Feedback")
+
 if focus in ["General Feedback", "Both"]:
     with st.form("overall_form"):
         if style == "Structured":
             rating = st.selectbox(
-                "Overall, how well is therapy meeting your needs? (1–5, optional)",
+                "Overall, how well is therapy meeting your needs? (1–5)",
                 options=["", 1, 2, 3, 4, 5],
                 index=0
             )
             enjoy = st.text_area("Anything you especially enjoy or hope continues?", height=100)
-            stress = st.text_area("Anything stressful, uncomfortable, or less effective? (optional prompts)", height=100)
+            stress = st.text_area("Anything stressful, uncomfortable, or less effective?", height=100)
         else:  # Unstructured
             rating = None
             enjoy = st.text_area("What are areas of therapy that feel especially helpful?")
@@ -121,18 +119,12 @@ if focus in ["General Feedback", "Both"]:
 # -------------------------------
 # Section 2: Topics & Comfort
 # -------------------------------
-st.header("Section 2 — Topics & Comfort")
-show_topics = True
-if super_optional and focus != "Both":
-    if not st.checkbox("Reflect on topics & comfort (optional)", key="topics_optin"):
-        show_topics = False
-
-if show_topics:
+with st.expander("Section 2 — Topics & Comfort"):
     with st.form("topics_form"):
-        easy = st.text_area("What topics are easy to discuss with your therapist")
-        hard = st.text_area("What topics are more challenging to discuss with your therapist")
-        hesitant = st.text_area("Are there any topics you have been hesitant to bring up?")
-        training = st.text_area("Are there any trainings or resources that you wish your therapist would become familiar with (e.g. 'I wish my therapist would consider reading X article on Y identity to better understand my experience')")
+        easy = st.text_area("What topics are easy to discuss with your therapist?")
+        hard = st.text_area("What topics are more challenging to discuss with your therapist?")
+        hesitant = st.text_area("Are there any topics you’ve been hesitant to bring up?")
+        training = st.text_area("Are there any trainings or resources you wish your therapist would become familiar with?")
         submitted = st.form_submit_button("Save Section")
         if submitted:
             responses["Topics & Comfort"] = {
@@ -146,26 +138,15 @@ if show_topics:
 # -------------------------------
 # Section 3: Structure & Style
 # -------------------------------
-st.header("Section 3 — Structure & Style")
-show_style = True
-if super_optional and focus != "Both":
-    if not st.checkbox("Reflect on session structure & style (optional)", key="style_optin"):
-        show_style = False
-
-if show_style:
+with st.expander("Section 3 — Structure & Style"):
     with st.form("style_form"):
-        if style == "Structured":
-            punctuality = st.selectbox("Punctuality/scheduling is a source of stress (1–5, optional)", ["", 1, 2, 3, 4, 5], index=0)
-            disclosure = st.selectbox("Therapist self-disclosure", ["", "Too little", "Just right", "Too much"], index=0)
-            disclosure_text = st.text_area("Comments on self-disclosure (optional)")
-            structure = st.selectbox("Session structure/flexibility", ["", "Too rigid or structured", "Balanced/about right", "Too flexible or unstructured"], index=0)
-            structure_text = st.text_area("Comments on session structure (optional)")
-            comm_style = st.text_area("Communication style (optional)")
-            autonomy = st.selectbox("Autonomy vs compliance/masking (1–5, optional)", ["", 1, 2, 3, 4, 5], index=0)
-        else:  # Unstructured
-            punctuality = disclosure = disclosure_text = structure = structure_text = comm_style = autonomy = ""
-            comm_style = st.text_area("How would you describe your therapist’s style, and how does it fit for you?")
-            structure_text = st.text_area("How flexible, structured, or spontaneous do sessions feel?")
+        punctuality = st.selectbox("Punctuality/scheduling is a source of stress (1–5)", ["", 1, 2, 3, 4, 5], index=0)
+        disclosure = st.selectbox("Therapist self-disclosure", ["", "Too little", "Just right", "Too much"], index=0)
+        disclosure_text = st.text_area("Comments on self-disclosure")
+        structure = st.selectbox("Session structure/flexibility", ["", "Too rigid", "Balanced", "Too flexible"], index=0)
+        structure_text = st.text_area("Comments on session structure")
+        comm_style = st.text_area("Communication style")
+        autonomy = st.selectbox("Autonomy vs compliance/masking (1–5)", ["", 1, 2, 3, 4, 5], index=0)
         submitted = st.form_submit_button("Save Section")
         if submitted:
             responses["Structure & Style"] = {
@@ -182,19 +163,13 @@ if show_style:
 # -------------------------------
 # Section 4: Relational Climate
 # -------------------------------
-st.header("Section 4 — Relational Climate")
-show_rel = True
-if super_optional and focus != "Both":
-    if not st.checkbox("Reflect on relational climate (optional)", key="rel_optin"):
-        show_rel = False
-
-if show_rel:
+with st.expander("Section 4 — Relational Climate"):
     with st.form("rel_form"):
-        safe = st.selectbox("I feel safe, respected, and understood (1–5, optional)", ["",1,2,3,4,5], index=0)
-        honest = st.selectbox("I feel comfortable being honest (1–5, optional)", ["",1,2,3,4,5], index=0)
+        safe = st.selectbox("I feel safe, respected, and understood (1–5)", ["", 1, 2, 3, 4, 5], index=0)
+        honest = st.selectbox("I feel comfortable being honest (1–5)", ["", 1, 2, 3, 4, 5], index=0)
         post_session = st.multiselect("After sessions, I usually feel:", ["Calm","Relieved","Overwhelmed","Confused","Hopeful","Worse"], default=[])
-        stress_signs = st.text_area("Signs of stress/overwhelm (optional)")
-        stress_help = st.text_area("What helps most when stressed? (optional)")
+        stress_signs = st.text_area("Signs of stress or overwhelm")
+        stress_help = st.text_area("What helps most when stressed?")
         submitted = st.form_submit_button("Save Section")
         if submitted:
             responses["Relational Climate"] = {
@@ -209,23 +184,18 @@ if show_rel:
 # -------------------------------
 # Section 5: Therapy Harm & Boundaries
 # -------------------------------
-st.header("Section 5 — Therapy Harm & Boundaries")
-show_harm = focus == "Concerns, Discomfort, or Harm"
-if focus != "Concerns, Discomfort, or Harm":
-    show_harm = st.checkbox("Optional: Reflect on boundaries, safety, or harm", key="harm_optin")
-
-if show_harm:
+with st.expander("Section 5 — Therapy Harm & Boundaries"):
     with st.form("harm_form"):
-        felt_friend = st.selectbox("I sometimes feel like my therapist treats me more like a friend than a client? (1–5, optional)", ["",1,2,3,4,5], index=0)
-        self_disclosure = st.selectbox("I sometimes feel confused or uncomfortable with how much my therapist shares about themselves (1–5, optional)", ["",1,2,3,4,5], index=0)
-        physical_contact = st.selectbox("I feel confused or hurt about physical contact with my therapist (1–5, optional)", ["",1,2,3,4,5], index=0)
-        dual_roles = st.selectbox("Dual roles with therapist (1–5, optional)", ["",1,2,3,4,5], index=0)
-        blurred_boundaries = st.selectbox("Times therapist blurred boundaries (1–5, optional)", ["",1,2,3,4,5], index=0)
-        impact = st.text_area("Anything you'd like clinician to know about impact?", height=100)
-        meaningful_response = st.text_area("What acknowledgement or response would feel meaningful?", height=100)
-        misunderstood_feedback = st.text_area("Ways feedback was misunderstood?", height=100)
-        feedback_worries = st.text_area("Ways feedback might be misunderstood now?", height=100)
-        open_reflection = st.text_area("Anything else about harm, safety, or boundaries?", height=120)
+        felt_friend = st.selectbox("I sometimes feel like my therapist treats me more like a friend than a client (1–5)", ["", 1, 2, 3, 4, 5], index=0)
+        self_disclosure = st.selectbox("I sometimes feel uncomfortable with how much my therapist shares about themselves (1–5)", ["", 1, 2, 3, 4, 5], index=0)
+        physical_contact = st.selectbox("I feel confused or hurt about physical contact with my therapist (1–5)", ["", 1, 2, 3, 4, 5], index=0)
+        dual_roles = st.selectbox("Dual roles with therapist (1–5)", ["", 1, 2, 3, 4, 5], index=0)
+        blurred_boundaries = st.selectbox("Times therapist blurred boundaries (1–5)", ["", 1, 2, 3, 4, 5], index=0)
+        impact = st.text_area("Anything you'd like your clinician to know about impact?")
+        meaningful_response = st.text_area("What acknowledgement or response would feel meaningful?")
+        misunderstood_feedback = st.text_area("Ways feedback was misunderstood?")
+        feedback_worries = st.text_area("Ways feedback might be misunderstood now?")
+        open_reflection = st.text_area("Anything else about harm, safety, or boundaries?")
         submitted = st.form_submit_button("Save Section")
         if submitted:
             responses["Therapy Harm & Boundaries"] = {
@@ -245,25 +215,23 @@ if show_harm:
 # -------------------------------
 # Section 6: Feedback & Follow-Up Preferences
 # -------------------------------
-st.header("Section 6 — Feedback & Follow-Up Preferences")
-with st.form("feedback_form"):
-    checkin_methods = st.multiselect(
-        "How would you like your therapist to check in with you about sessions/comfort?",
-        ["In-session", "Written follow-up", "None", "Share planned changes", "Other"],
-        default=[]
-    )
-    checkin_comments = st.text_area("Additional notes on follow-up (optional)")
-    explore_other = st.text_area(
-        "Would you like to explore other ways to address concerns? (optional)"
-    )
-    submitted = st.form_submit_button("Save Section")
-    if submitted:
-        responses["Feedback & Follow-Up Preferences"] = {
-            "Check-in methods": checkin_methods,
-            "Check-in notes": checkin_comments,
-            "Explore other ways": explore_other
-        }
-        st.success("Saved Feedback & Follow-Up Preferences.")
+with st.expander("Section 6 — Feedback & Follow-Up Preferences"):
+    with st.form("feedback_form"):
+        checkin_methods = st.multiselect(
+            "How would you like your therapist to check in with you about sessions/comfort?",
+            ["In-session", "Written follow-up", "None", "Share planned changes", "Other"],
+            default=[]
+        )
+        checkin_comments = st.text_area("Additional notes on follow-up")
+        explore_other = st.text_area("Would you like to explore other ways to address concerns?")
+        submitted = st.form_submit_button("Save Section")
+        if submitted:
+            responses["Feedback & Follow-Up Preferences"] = {
+                "Check-in methods": checkin_methods,
+                "Check-in notes": checkin_comments,
+                "Explore other ways": explore_other
+            }
+            st.success("Saved Feedback & Follow-Up Preferences.")
 
 # -------------------------------
 # Section 7: Wrap-Up — Safety & Options
@@ -271,7 +239,7 @@ with st.form("feedback_form"):
 st.header("Section 7 — Wrap-Up: Safety & Options")
 with st.form("wrapup_form"):
     sharing_options = st.multiselect(
-        "Choose how you want to share your feedback (optional)",
+        "Choose how you want to share your feedback",
         ["Read aloud in session", "Share via email / PDF", "Keep private"],
         default=[]
     )
@@ -280,12 +248,8 @@ with st.form("wrapup_form"):
         ["", "Comfortable", "Unsure", "Unsafe"],
         index=0
     )
-    reactions_reflection = st.text_area(
-        "What reactions from your therapist might feel manageable vs harmful?", height=100
-    )
-    support_access = st.text_area(
-        "Supports you can access before/after sharing (optional)", height=100
-    )
+    reactions_reflection = st.text_area("What reactions from your therapist might feel manageable vs harmful?", height=100)
+    support_access = st.text_area("Supports you can access before/after sharing", height=100)
     submitted = st.form_submit_button("Save Section")
     if submitted:
         responses["Wrap-Up — Safety & Options"] = {
@@ -325,5 +289,5 @@ if "docx_bytes" in st.session_state:
         mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     )
 
-st.caption("You can expand this form with audio uploads, anonymization, or richer branching if desired.")
+st.caption("All questions are optional. You can expand sections as you wish and download your responses as a summary file at the end.")
 
