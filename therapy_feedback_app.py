@@ -61,8 +61,7 @@ responses = st.session_state["responses"]
 # -------------------------------
 st.title("Therapy Feedback Form")
 st.markdown(
-    "This form is for you. It can help you reflect on your therapy experience, organize your thoughts, "
-    "and—if you choose—create a summary to share with your therapist. All questions are optional, and you choose what to share."
+    "This form is designed to help you reflect on your therapy experiences and think about feedback you might want to share with your therapist. All questions are optional, and at the end you can choose to download a summary of your responses to some or all of the form sections, which you are welcome to share with your therapist or others. If you have any questions or feedback, please don't hesitate to contact us at sambrandsen7@gmail.com."
 )
 st.markdown("---")
 
@@ -78,8 +77,8 @@ focus = st.radio(
 )
 
 style = st.radio(
-    "Preferred feedback style:",
-    ("Structured (Likert + text)", "Semi-structured (guided prompts)"),
+    "Preferred style of questions/prompts:",
+    ("Longer sections with a mix of open-ended and multiple choice questions)", "Shorter sections with a few open-ended question prompts"),
     key="entry_style"
 )
 
@@ -97,7 +96,7 @@ if focus in ["General Feedback", "Both"]:
     with st.form("overall_form"):
         if style.startswith("Structured"):
             rating = st.selectbox(
-                "Overall — how well is therapy meeting your needs? (1–5, optional)",
+                "Overall, how well is therapy meeting your needs? (1–5, optional)",
                 options=["", 1, 2, 3, 4, 5],
                 index=0
             )
@@ -152,7 +151,7 @@ if super_optional and focus != "Both":
 
 if show_style:
     with st.form("style_form"):
-        punctuality = st.selectbox("Punctuality/scheduling (1–5, optional)", ["", 1, 2, 3, 4, 5], index=0)
+        punctuality = st.selectbox("Punctuality/scheduling is a source of stress (1–5, optional)", ["", 1, 2, 3, 4, 5], index=0)
         disclosure = st.selectbox("Therapist self-disclosure", ["", "Too little", "Just right", "Too much"], index=0)
         disclosure_text = st.text_area("Comments on self-disclosure (optional)")
         structure = st.selectbox("Session structure/flexibility", ["", "Rigid", "Balanced", "Very flexible"], index=0)
@@ -209,9 +208,9 @@ if focus != "Concerns, Discomfort, or Harm":
 
 if show_harm:
     with st.form("harm_form"):
-        felt_friend = st.selectbox("Felt like therapist treated you more like a friend than a client? (1–5, optional)", ["",1,2,3,4,5], index=0)
-        self_disclosure = st.selectbox("Comfort with therapist's personal sharing (1–5, optional)", ["",1,2,3,4,5], index=0)
-        physical_contact = st.selectbox("Physical contact occurred and feelings about it (1–5, optional)", ["",1,2,3,4,5], index=0)
+        felt_friend = st.selectbox("I sometimes feel like my therapist treats me more like a friend than a client? (1–5, optional)", ["",1,2,3,4,5], index=0)
+        self_disclosure = st.selectbox("I sometimes feel confused or uncomfortable with how much my therapist shares about themselves (1–5, optional)", ["",1,2,3,4,5], index=0)
+        physical_contact = st.selectbox("I feel confused or hurt about physical contact with my therapist (1–5, optional)", ["",1,2,3,4,5], index=0)
         dual_roles = st.selectbox("Dual roles with therapist (1–5, optional)", ["",1,2,3,4,5], index=0)
         blurred_boundaries = st.selectbox("Times therapist blurred boundaries (1–5, optional)", ["",1,2,3,4,5], index=0)
         impact = st.text_area("Anything you'd like clinician to know about impact?", height=100)
@@ -223,8 +222,8 @@ if show_harm:
         if submitted:
             responses["Therapy Harm & Boundaries"] = {
                 "Felt like friend vs client (1–5)": felt_friend,
-                "Comfort with self-disclosure (1–5)": self_disclosure,
-                "Physical contact (1–5)": physical_contact,
+                "Feeling of confusion over self-disclosure (1–5)": self_disclosure,
+                "Feeling of confusion over physical contact (1–5)": physical_contact,
                 "Dual roles (1–5)": dual_roles,
                 "Blurred boundaries (1–5)": blurred_boundaries,
                 "Impact on client": impact,
