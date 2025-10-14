@@ -76,9 +76,12 @@ focus = st.radio(
     key="entry_focus"
 )
 
+# ✅ Clean, functional style toggle
 style = st.radio(
     "Preferred style of questions/prompts:",
-    ("Longer sections with a mix of open-ended and multiple choice questions)", "Shorter sections with a few open-ended question prompts"),
+    options=["Structured", "Unstructured"],
+    format_func=lambda s: "Longer sections with a mix of open-ended and multiple choice questions"
+        if s == "Structured" else "Shorter sections with mostly open-ended prompts",
     key="entry_style"
 )
 
@@ -94,7 +97,7 @@ st.header("Section 1 — Overall Experience")
 st.subheader("General Feedback")
 if focus in ["General Feedback", "Both"]:
     with st.form("overall_form"):
-        if style.startswith("Structured"):
+        if style == "Structured":
             rating = st.selectbox(
                 "Overall, how well is therapy meeting your needs? (1–5, optional)",
                 options=["", 1, 2, 3, 4, 5],
@@ -102,15 +105,15 @@ if focus in ["General Feedback", "Both"]:
             )
             enjoy = st.text_area("Anything you especially enjoy or hope continues?", height=100)
             stress = st.text_area("Anything stressful, uncomfortable, or less effective? (optional prompts)", height=100)
-        else:  # Semi-structured
+        else:  # Unstructured
             rating = None
-            enjoy = st.text_area("One thing that feels especially helpful:")
-            stress = st.text_area("One thing that feels difficult or could be improved:")
+            enjoy = st.text_area("What are areas of therapy that feel especially helpful?")
+            stress = st.text_area("What is something that feels difficult or could be improved?")
         submitted = st.form_submit_button("Save Section")
         if submitted:
             responses["Overall Experience"] = {
                 "Overall rating (1–5)": rating,
-                "What to continue": enjoy,
+                "What to continue/what is going well": enjoy,
                 "Stressful / less effective": stress
             }
             st.success("Saved Overall Experience.")
@@ -126,17 +129,17 @@ if super_optional and focus != "Both":
 
 if show_topics:
     with st.form("topics_form"):
-        easy = st.text_area("Topics easy to discuss (optional)")
-        hard = st.text_area("Topics more challenging (optional)")
-        hesitant = st.text_area("Topics hesitant to bring up (optional)")
-        training = st.text_area("Any training/education suggestions (optional)")
+        easy = st.text_area("What topics are easy to discuss with your therapist")
+        hard = st.text_area("What topics are more challenging to discuss with your therapist")
+        hesitant = st.text_area("Are there any topics you have been hesitant to bring up?")
+        training = st.text_area("Are there any trainings or resources that you wish your therapist would become familiar with (e.g. 'I wish my therapist would consider reading X article on Y identity to better understand my experience')")
         submitted = st.form_submit_button("Save Section")
         if submitted:
             responses["Topics & Comfort"] = {
-                "Easy topics": easy,
-                "Hard topics": hard,
-                "Hesitant topics": hesitant,
-                "Training suggestions": training
+                "Topics that are easy to discuss": easy,
+                "Topics that are harder to discuss in therapy": hard,
+                "Topics I have been hesitant to bring up": hesitant,
+                "Trainings or resources I wish my therapist would consider": training
             }
             st.success("Saved Topics & Comfort.")
 
@@ -151,13 +154,18 @@ if super_optional and focus != "Both":
 
 if show_style:
     with st.form("style_form"):
-        punctuality = st.selectbox("Punctuality/scheduling is a source of stress (1–5, optional)", ["", 1, 2, 3, 4, 5], index=0)
-        disclosure = st.selectbox("Therapist self-disclosure", ["", "Too little", "Just right", "Too much"], index=0)
-        disclosure_text = st.text_area("Comments on self-disclosure (optional)")
-        structure = st.selectbox("Session structure/flexibility", ["", "Rigid", "Balanced", "Very flexible"], index=0)
-        structure_text = st.text_area("Comments on session structure (optional)")
-        comm_style = st.text_area("Communication style (optional)")
-        autonomy = st.selectbox("Autonomy vs compliance/masking (1–5, optional)", ["", 1, 2, 3, 4, 5], index=0)
+        if style == "Structured":
+            punctuality = st.selectbox("Punctuality/scheduling is a source of stress (1–5, optional)", ["", 1, 2, 3, 4, 5], index=0)
+            disclosure = st.selectbox("Therapist self-disclosure", ["", "Too little", "Just right", "Too much"], index=0)
+            disclosure_text = st.text_area("Comments on self-disclosure (optional)")
+            structure = st.selectbox("Session structure/flexibility", ["", "Too rigid or structured", "Balanced/about right", "Too flexible or unstructured"], index=0)
+            structure_text = st.text_area("Comments on session structure (optional)")
+            comm_style = st.text_area("Communication style (optional)")
+            autonomy = st.selectbox("Autonomy vs compliance/masking (1–5, optional)", ["", 1, 2, 3, 4, 5], index=0)
+        else:  # Unstructured
+            punctuality = disclosure = disclosure_text = structure = structure_text = comm_style = autonomy = ""
+            comm_style = st.text_area("How would you describe your therapist’s style, and how does it fit for you?")
+            structure_text = st.text_area("How flexible, structured, or spontaneous do sessions feel?")
         submitted = st.form_submit_button("Save Section")
         if submitted:
             responses["Structure & Style"] = {
