@@ -58,7 +58,7 @@ if "responses" not in st.session_state:
 # Introduction
 # -------------------------------
 st.title("Therapy Feedback Form")
-st.warning("⚠️ This is an experimental / early version of the tool.")
+st.warning("⚠️ This is an experimental / early version of the tool We would recommend completing in one sitting if possible and checking the final summary to ensure it looks the way you want.")
 st.markdown("""
 This form helps you reflect on your therapy experiences — what’s working, what feels hard, and what you might want to share. 
 All questions are optional and only answered questions will appear in the final download. 
