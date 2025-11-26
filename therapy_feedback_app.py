@@ -3,7 +3,8 @@ from io import BytesIO
 from docx import Document
 from datetime import datetime
 
-st.set_page_config(page_title="Therapy Feedback Form", layout="centered")
+
+st.set_page_config(page_title="Therapy Experience Reflection Tool", layout="centered")
 
 # -------------------------------
 # Helper: record full question text + response
@@ -27,7 +28,6 @@ def make_docx(responses, title="Therapy Feedback Summary"):
         "This document compiles client feedback from the therapy reflection tool. "
         "All responses are provided as entered by the client. "
         "Only answered questions are included. Likert values (1–5) reflect selected ratings. "
-        "Blank answers are excluded."
     )
     doc.add_paragraph()
 
@@ -57,12 +57,23 @@ if "responses" not in st.session_state:
 # -------------------------------
 # Introduction
 # -------------------------------
-st.title("Therapy Feedback Form")
+st.title("Therapy Experience Reflection Tool")
 st.warning("⚠️ This is an experimental / early version of the tool We would recommend completing in one sitting if possible and checking the final summary to ensure it looks the way you want.")
 st.markdown("""
-This form helps you reflect on your therapy experiences — what’s working, what feels hard, and what you might want to share. 
-All questions are optional and only answered questions will appear in the final download. 
-You can answer as many or as few as you like, and save everything at the end using the **“Save All Sections”** button.
+This form helps you reflect on your therapy experiences — what’s working, what feels hard, and what you might want to share. All questions are optional. You can answer as many or as few as you like. 
+
+You are welcome to use this tool for your own reflection, share the results with your therapist, or anyone else you would like to better understand your experiences. We unfortunately can’t guarantee how your therapist will respond to feedback, but a safe therapy relationship is one in which your experience matters and is met with respect. We should also note that anything given to a therapist may go into your clinical record.
+
+Your responses are only stored temporarily in your current browser session. Hitting the 'Generate Word Summary' button at the bottom of the form will prepare a word document with your selected responses that you can download by pressing “Download Word Summary”.
+
+At the bottom of the form, you will have the option to create a printable, editable download of your responses. Only answered questions will appear in the final download.
+
+If you wish to use this tool in multiple separate sessions, we recommend answering whichever questions you wish during each session, and then downloading your responses after each session so that you can combine them if you wish. This will prevent any of your responses from being lost should the session time out. 
+
+Final note: regardless of what feedback or experiences you provide or wishes you share with your clinician, it is their responsibility to uphold ethical boundaries, to approach rupture and harm humanely and therapeutically, and to never end a therapy as a way out of genuine engagement with repair.
+
+This tool is developed by Sam Brandsen with support from Therapy Harm Response & Prevention (THRP). We welcome any feedback on the tool itself and please don’t hesitate to contact us at brandsensam@gmail.com.
+
 """)
 st.markdown("---")
 
