@@ -58,7 +58,7 @@ if "responses" not in st.session_state:
 # Introduction
 # -------------------------------
 st.title("Therapy Experience Reflection Tool")
-st.warning("⚠️ This is an experimental / early version of the tol.")
+st.warning("⚠️ This is an experimental / early version of the ool.")
 st.markdown("""
 This form helps you reflect on your therapy experiences — what’s working, what feels hard, and what you might want to share. All questions are optional. You can answer as many or as few as you like. 
 
